@@ -26,7 +26,7 @@ function LandingPage() {
         <button className="btn btn-danger me-2 fw-bold" onClick={() => navigate('signup')}>Get Started</button>
         <button className="btn btn-light text-danger fw-bold" onClick={() => navigate('login')}>Sign In</button>
       </div>
-      <h1 className='text-white mt-5' style={headingStyle}>Welcome to the <br></br>Destination of Movies...</h1>
+      <h1 className='text-white m-4' style={headingStyle}>Welcome to the <br></br>Destination of Movies...</h1>
     </div>
   )
 }
