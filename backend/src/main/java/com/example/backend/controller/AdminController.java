@@ -1,0 +1,27 @@
+package com.example.backend.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class AdminController{
+	@GetMapping("/admin")
+	public String admin(){
+		return "Admin";
+	}
+	
+	@GetMapping("/login")
+	public String login() {
+		return "Login";
+	}
+	
+	@GetMapping("/movies")
+	public String movies() {
+		return "Movies";
+	}
+	
+	@GetMapping("/create-movie")
+	public String createMovie() {
+		return "CreateMovie";
+	}
+}
