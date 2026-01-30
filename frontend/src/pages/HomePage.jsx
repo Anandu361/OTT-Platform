@@ -1,8 +1,24 @@
-import React from 'react'
 import Cards from '../components/Cards'
 import Navbar from '../components/Navbar'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 function HomePage() {
+  const [movies, setMovies] = useState([])
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:8080/api/movies')
+      .then(response => {
+        setMovies(response.data)
+      })
+      .catch(error => {
+        console.error('Error fetching movies:', error)
+      })
+  }, [])
+
   return (
     <div>
       <Navbar />
@@ -64,44 +80,26 @@ function HomePage() {
           {/* Section header */}
           <div className="d-flex align-items-center justify-content-between mb-4">
             <h3 className="fw-bold">Top movies this week</h3>
-            <span className="text-danger fw-semibold">
-              View all →
-            </span>
+            <a href="/movies" className="text-danger fw-semibold">View all →</a>
           </div>
 
           {/* Cards grid */}
           <div className="row g-4">
-            <div className="col-lg-3 col-md-4 col-sm-6">
-              <Cards
-                image="https://images.unsplash.com/photo-1606112219348-204d7d8b94ee"
-                title="Movie One"
-                description="Action | Thriller"
-              />
-            </div>
-
-            <div className="col-lg-3 col-md-4 col-sm-6">
-              <Cards
-                image="https://images.unsplash.com/photo-1524985069026-dd778a71c7b4"
-                title="Movie Two"
-                description="Drama | Romance"
-              />
-            </div>
-
-            <div className="col-lg-3 col-md-4 col-sm-6">
-              <Cards
-                image="https://images.unsplash.com/photo-1517602302552-471fe67acf66"
-                title="Movie Three"
-                description="Sci-Fi | Adventure"
-              />
-            </div>
-
-            <div className="col-lg-3 col-md-4 col-sm-6">
-              <Cards
-                image="https://images.unsplash.com/photo-1497032628192-86f99bcd76bc"
-                title="Movie Four"
-                description="Comedy | Family"
-              />
-            </div>
+            {movies.map(movie => (
+              <div 
+              key={movie.movieId} 
+              className="col-6 col-md-4 col-lg-3 btn btn-link p-0 text-decoration-none"
+              onClick={() => navigate(`/movie/${movie.movieId}`)}
+              style={{ cursor: 'pointer' }}
+              >
+                <Cards 
+                  id={movie.movieId}
+                  image={`http://localhost:8080${movie.poster}`}
+                  title={movie.movie_name}
+                  description={movie.description}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>

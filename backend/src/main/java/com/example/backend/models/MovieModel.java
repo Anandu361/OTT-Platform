@@ -1,67 +1,84 @@
 package com.example.backend.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name="movies", uniqueConstraints = @UniqueConstraint(columnNames = "movie_id"))
-public class MovieModel{
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long movie_id;
-	
-	private String movie_name;
-	private String description;
-	private String poster;
-	private int views;
-	private String movie;
-	
-	public MovieModel(String movie_name, String description, String poster, int views, String movie) {
-		this.setMovie_name(movie_name);
-		this.setDescription(description);
-		this.setPoster(poster);
-		this.setViews(views);
-		this.setMovie(movie);
-		
-	}
-	public MovieModel() {
-		super();
-	}
-	public Long getMovie_id() {
-		return movie_id;
-	}
-	public String getMovie_name() {
-		return movie_name;
-	}
-	public void setMovie_name(String movie_name) {
-		this.movie_name = movie_name;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String descrition) {
-		this.description = descrition;
-	}
-	public String getPoster() {
-		return poster;
-	}
-	public void setPoster(String poster) {
-		this.poster = poster;
-	}
-	public int getViews() {
-		return views;
-	}
-	public void setViews(int views) {
-		this.views = views;
-	}
-	public String getMovie() {
-		return movie;
-	}
-	public void setMovie(String movie) {
-		this.movie = movie;
-	}
+@Table(
+    name = "movies",
+    uniqueConstraints = @UniqueConstraint(columnNames = "movie_id")
+)
+public class MovieModel {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "movie_id")
+    private Long movieId;
+
+    @Column(name = "movie_name", nullable = false)
+    private String movieName;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
+    private String poster;
+
+    private int views;
+
+    @Column(nullable = false)
+    private String movie; // video path
+
+    public MovieModel() {}
+
+    public MovieModel(String movieName, String description, String poster, int views, String movie) {
+        this.movieName = movieName;
+        this.description = description;
+        this.poster = poster;
+        this.views = views;
+        this.movie = movie;
+    }
+
+    public Long getMovieId() {
+        return movieId;
+    }
+
+    public String getMovieName() {
+        return movieName;
+    }
+
+    public void setMovieName(String movieName) {
+        this.movieName = movieName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
+    }
+
+    public String getMovie() {
+        return movie;
+    }
+
+    public void setMovie(String movie) {
+        this.movie = movie;
+    }
 }

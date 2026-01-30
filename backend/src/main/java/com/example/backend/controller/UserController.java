@@ -5,14 +5,15 @@ import com.example.backend.repository.UserRepository;
 import com.example.backend.security.TokenGenerator;
 import java.util.Map;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
-import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.example.backend.dto.PasswordRequest;
+import com.example.backend.service.CustomUserDetail;
 import com.example.backend.service.CustomUserDetailsService;
 
 
@@ -53,14 +54,41 @@ public class UserController {
     @PostMapping("/update-password")
     public String updatePassword(@RequestBody PasswordRequest request) {
 
-        org.springframework.security.core.@Nullable Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetailsService userDetails = (CustomUserDetailsService) auth.getPrincipal();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            return "Unauthorized";
+        }
+
+        CustomUserDetail userDetails = (CustomUserDetail) auth.getPrincipal();
         UserModel user = userDetails.getUser();
 
         boolean ok = customUserDetailsService.updatePassword(
-                user, request.getOldPassword(), request.getNewPassword());
+                user,
+                request.getOldPassword(),
+                request.getNewPassword()
+        );
 
         return ok ? "Password updated successfully" : "Old password incorrect";
     }
+    
+    @GetMapping("/user/me")
+    public ResponseEntity<?> getCurrentUser() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        CustomUserDetail userDetails = (CustomUserDetail) auth.getPrincipal();
+        UserModel user = userDetails.getUser();
+
+        return ResponseEntity.ok(Map.of(
+            "fullname", user.getFullname(),
+            "email", user.getEmail()
+        ));
+    }
+
 
 }

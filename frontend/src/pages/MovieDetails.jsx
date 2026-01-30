@@ -1,26 +1,92 @@
-import React from 'react'
+import React, { use } from 'react'
 import Navbar from '../components/Navbar'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function MovieDetails() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [movie, setMovie] = useState(null);
+  const token = localStorage.getItem('token');
+  useEffect(() => {
+    axios.get(`http://localhost:8080/api/movies/${id}`)
+      .then(response => {
+        setMovie(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching movie details:', error);
+      });
+  }, [id]);
+    function addToWatchlist() {
+      if (!token) {
+        alert("Please login first");
+        return;
+      }
+
+      axios.post(
+        `http://localhost:8080/api/watchlist/add?movieId=${movie.movie_id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+      .then(res => {
+        alert(res.data);
+      })
+      .catch(err => {
+        alert(err.response?.data || "Something went wrong");
+      });
+    }
+
+    function watchNow() {
+      if (!token) {
+        alert("Please login first");
+        return;
+      }
+
+      axios.get(
+        `http://localhost:8080/api/watch/now?movieId=${movie.movie_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+      .then(() => {
+        // navigate to video page
+        navigate(`/watch/${movie.movie_id}`);
+      })
+      .catch(err => {
+        alert(err.response?.data || "Unable to play movie");
+      });
+    }
+
+  if (!movie) {
+    return <div>Loading...</div>;
+  }
   return (
     <div>
       <Navbar />
       <button className='m-3 btn btn-link link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' onClick={() => navigate(-1)}><i className="bi bi-arrow-left"></i> Back</button>
-      <div className="container row text-center mt-5 border rounded-3 p-4 shadow-lg mx-auto">
+      <div className="container row text-center border rounded-3 p-4 shadow-lg mx-auto">
         <div className="m-4 text-start col ">
-          <h1 >Movie Name</h1>
-          <p >This is a detailed description of the movie. It provides insights into the plot, characters, and other interesting aspects of the film.</p>
-          <h3>Cast:</h3>
-          <ul className='list-unstyled'>
-            <li>Actor 1 as Character A</li>
-            <li>Actor 2 as Character B</li>
-            <li>Actor 3 as Character C</li>
-          </ul> 
+          <h1 >{movie.movie_name}</h1>
+          <p >{movie.description}</p>
+          
         </div>
         <div className="mt-4 col">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMXQPShZr-RvIoikjIn2G-SoJd93tXp0JiHg&s" alt="Movie Poster" className="img-fluid mb-4" />
+          <img
+            src={`http://localhost:8080${movie.poster}`}
+            alt={movie.movie_name}
+            className="img-fluid mb-4"
+          />
+        </div>
+        <div>
+          <button className="btn btn-danger" onClick={watchNow}>Watch Now</button>
+          <button className="btn btn-outline-danger ms-2" onClick={addToWatchlist}>Add to Watchlist</button>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import com.example.backend.models.MovieModel;
@@ -27,5 +28,10 @@ public class MovieController{
     @GetMapping("/{id}")
     public MovieModel getMovieById(@PathVariable Long id) {
         return movieRepository.findById(id).orElse(null);
+    }
+    
+    @GetMapping("/search")
+    public List<MovieModel> searchMovies(@RequestParam String query) {
+        return movieRepository.findByMovieNameContainingIgnoreCase(query);
     }
 }

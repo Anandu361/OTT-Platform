@@ -9,6 +9,8 @@ import ChangePassword from '../pages/ChangePassword.jsx'
 import WatchList from '../pages/WatchList.jsx'
 import WatchHistory from '../pages/WatchHistory.jsx'  
 import MovieDetails from '../pages/MovieDetails.jsx'
+import WatchMovie from '../pages/WatchMovie.jsx'
+import MovieList from '../pages/MovieList.jsx'
 
 function routes() {
   return (
@@ -22,6 +24,8 @@ function routes() {
       <Route path='/watchlist' element={<WatchList />} />
       <Route path='/watchhistory' element={<WatchHistory />} />
       <Route path='/movie/:id' element={<MovieDetails />} />
+      <Route path='/watch/:id' element={<WatchMovie />} />
+      <Route path='/movies' element={<MovieList />} />
     </Routes>
   )
 }

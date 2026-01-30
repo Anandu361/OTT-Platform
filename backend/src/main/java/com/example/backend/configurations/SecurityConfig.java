@@ -65,7 +65,8 @@ public class SecurityConfig {
         .csrf(c -> c.disable())
         .cors(c -> c.configurationSource(corsConfigurationSource()))   // 🔥 ADD THIS LINE
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/login", "/api/register").permitAll()
+            .requestMatchers("/api/**", "/posters/**").permitAll()
+            .requestMatchers("/videos/**").authenticated()
             .anyRequest().authenticated()
         )
         .addFilterBefore(apiAuthenticationFilter,

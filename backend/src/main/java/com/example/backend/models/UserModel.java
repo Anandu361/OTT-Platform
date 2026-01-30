@@ -1,6 +1,9 @@
 package com.example.backend.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,6 +22,10 @@ public class UserModel {
     private String password;
     private String fullname;
     private String token;
+    
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 
     public UserModel() {
         super();
@@ -28,6 +35,7 @@ public class UserModel {
         this.email = email;
         this.password = password;
         this.fullname = fullname;
+        this.role = Role.USER;
     }
 
     // Getters and Setters
@@ -67,5 +75,13 @@ public class UserModel {
     }
     public void setToken(String token) {
     	this.token = token;
+    }
+    
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

@@ -88,7 +88,7 @@ public class WatchlistController {
         List<WatchlistModel> list = watchlistRepository.findByUser(user);
 
         for (WatchlistModel wl : list) {
-            if (wl.getMovie().getMovie_id().equals(movieId)) {
+            if (wl.getMovie().getMovieId().equals(movieId)) {
                 watchlistRepository.delete(wl);
                 return "Movie removed from watchlist";
             }

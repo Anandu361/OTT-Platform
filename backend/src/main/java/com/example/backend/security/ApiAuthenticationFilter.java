@@ -29,6 +29,14 @@ public class ApiAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+    	
+    	String uri = request.getRequestURI();
+
+    	// ✅ completely skip auth filter for public endpoints
+    	if (uri.startsWith("/api/movies") || uri.startsWith("/posters")) {
+    	    filterChain.doFilter(request, response);
+    	    return;
+    	}
         String authHeader = request.getHeader("Authorization");
 
         // Check if the Authorization header is present and starts with "Bearer "
@@ -57,7 +65,8 @@ public class ApiAuthenticationFilter extends OncePerRequestFilter {
             }
         } else if (request.getRequestURI().startsWith("/api/") 
                 && !request.getRequestURI().equals("/api/register") 
-                && !request.getRequestURI().equals("/api/login")) {
+                && !request.getRequestURI().equals("/api/login")
+        		&& !request.getRequestURI().startsWith("/api/movies")){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Token required");
             return;
