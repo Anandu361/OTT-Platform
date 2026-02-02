@@ -27,52 +27,70 @@ public class ApiAuthenticationFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
-    	
-    	String uri = request.getRequestURI();
 
-    	// ✅ completely skip auth filter for public endpoints
-    	if (uri.startsWith("/api/movies") || uri.startsWith("/posters")) {
-    	    filterChain.doFilter(request, response);
-    	    return;
-    	}
+        String uri = request.getRequestURI();
+        
+        if (!uri.startsWith("/api/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (uri.startsWith("/admin")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
+        // ✅ Public endpoints
+        if (uri.startsWith("/api/movies") || uri.startsWith("/posters")
+            || uri.equals("/api/login") || uri.equals("/api/register")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
-        // Check if the Authorization header is present and starts with "Bearer "
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7); // Extract the token
-            if (tokenGenerator.validateToken(token)) {
-                // Fetch the user associated with the token
-                UserModel user = userRepository.findByToken(token);
-                if (user != null) {
-                    // Load UserDetails from CustomUserDetailsService
-                    CustomUserDetail userDetails = new CustomUserDetail(user);
-                    
-                    // Set authentication in SecurityContext
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                } else {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("User not found for the token");
-                    return;
-                }
-            } else {
+            String token = authHeader.substring(7);
+
+            if (!tokenGenerator.validateToken(token)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid or expired token");
                 return;
             }
-        } else if (request.getRequestURI().startsWith("/api/") 
-                && !request.getRequestURI().equals("/api/register") 
-                && !request.getRequestURI().equals("/api/login")
-        		&& !request.getRequestURI().startsWith("/api/movies")){
+
+            UserModel user = userRepository.findByToken(token);
+
+            if (user == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("User not found for token");
+                return;
+            }
+
+            // ✅ BLOCKED USER CHECK (correct place)
+            if (user.isBlocked()) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.getWriter().write("User blocked by admin");
+                return;
+            }
+
+            CustomUserDetail userDetails = new CustomUserDetail(user);
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Token required");
             return;
         }
 
-        // Continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

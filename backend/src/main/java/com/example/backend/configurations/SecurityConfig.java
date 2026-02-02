@@ -61,17 +61,36 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-    	http
-        .csrf(c -> c.disable())
-        .cors(c -> c.configurationSource(corsConfigurationSource()))   // 🔥 ADD THIS LINE
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/**", "/posters/**").permitAll()
-            .requestMatchers("/videos/**").authenticated()
-            .anyRequest().authenticated()
-        )
-        .addFilterBefore(apiAuthenticationFilter,
-            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        http
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(csrf -> csrf.disable())
 
+     
+        .formLogin(form -> form
+                .loginPage("/admin/login")
+                .loginProcessingUrl("/admin/login")
+                .defaultSuccessUrl("/admin/dashboard", true)
+                .failureUrl("/admin/login?error=true")
+                .permitAll()
+            )
+            .authorizeHttpRequests(auth -> auth
+                // ✅ allow admin login page
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/admin/login").permitAll()
+                .requestMatchers("/favicon.ico").permitAll()
+                // ✅ admin pages need ADMIN role
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                // ✅ public APIs
+                .requestMatchers("/api/login", "/api/register", "/api/movies/**", "/posters/**").permitAll()
+
+                // everything else needs auth
+                .anyRequest().authenticated()
+            )
+
+            // JWT filter (only affects /api/** now)
+            .addFilterBefore(apiAuthenticationFilter,
+                    org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -26,6 +26,9 @@ public class UserModel {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
+    
+    @Column(nullable = false)
+    private boolean blocked = false;
 
     public UserModel() {
         super();
@@ -84,4 +87,12 @@ public class UserModel {
     public void setRole(Role role) {
         this.role = role;
     }
+
+	public boolean isBlocked() {
+		return blocked;
+	}
+
+	public void setBlocked(boolean blocked) {
+		this.blocked = blocked;
+	}
 }
