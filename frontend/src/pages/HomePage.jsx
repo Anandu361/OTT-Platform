@@ -9,15 +9,26 @@ function HomePage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/movies')
-      .then(response => {
-        setMovies(response.data)
-      })
-      .catch(error => {
-        console.error('Error fetching movies:', error)
-      })
-  }, [])
+  axios
+    .get('http://localhost:8080/api/movies?page=0&size=8')
+    .then(response => {
+      const data = response.data;
+
+      if (Array.isArray(data.content)) {
+        setMovies(data.content);
+      } else if (Array.isArray(data)) {
+        setMovies(data);
+      } else {
+        setMovies([]);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching movies:', error);
+      setMovies([]);
+    });
+}, []);
+
+
 
   return (
     <div>
@@ -85,22 +96,23 @@ function HomePage() {
 
           {/* Cards grid */}
           <div className="row g-4">
-            {movies.map(movie => (
+            {Array.isArray(movies) && movies.map(movie => (
               <div 
-              key={movie.movieId} 
-              className="col-6 col-md-4 col-lg-3 btn btn-link p-0 text-decoration-none"
-              onClick={() => navigate(`/movie/${movie.movieId}`)}
-              style={{ cursor: 'pointer' }}
+                key={movie.movieId}
+                className="col-6 col-md-4 col-lg-3 btn btn-link p-0 text-decoration-none"
+                onClick={() => navigate(`/movie/${movie.movieId}`)}
+                style={{ cursor: 'pointer' }}
               >
                 <Cards 
                   id={movie.movieId}
                   image={`http://localhost:8080${movie.poster}`}
-                  title={movie.movie_name}
+                  title={movie.movieName}
                   description={movie.description}
                 />
               </div>
             ))}
           </div>
+
         </div>
       </div>
     </div>

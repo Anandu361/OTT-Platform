@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.example.backend.models.MovieModel;
 import com.example.backend.repository.MovieRepository;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
 
 
 @RestController
@@ -19,10 +22,14 @@ public class MovieController{
 	private MovieRepository movieRepository;
 	
 	// 1. Get all movies
-    @GetMapping
-    public List<MovieModel> getAllMovies() {
-        return movieRepository.findAll();
-    }
+		@GetMapping
+		public Page<MovieModel> getMovies(
+		        @RequestParam(defaultValue = "0") int page,
+		        @RequestParam(defaultValue = "8") int size
+		) {
+		    return movieRepository.findAll(PageRequest.of(page, size));
+		}
+
 
     // 2. Get movie by id
     @GetMapping("/{id}")

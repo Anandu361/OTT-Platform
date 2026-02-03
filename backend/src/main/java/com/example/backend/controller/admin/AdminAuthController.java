@@ -1,17 +1,12 @@
 package com.example.backend.controller.admin;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.example.backend.models.UserModel;
 import com.example.backend.repository.MovieRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.repository.WatchlistRepository;
-import com.example.backend.service.CustomUserDetail;
-import com.example.backend.models.Role;
 
 @Controller
 public class AdminAuthController {

@@ -5,6 +5,7 @@ import axios from 'axios'
 
 function WatchList() {
   const [watchlist, setWatchlist] = useState([])
+  
   const token = localStorage.getItem("token")
 
   // Fetch watchlist

@@ -11,48 +11,7 @@
 <body>
 
 <!-- 🔹 NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/admin/dashboard">OTT Admin</a>
-
-        <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#adminNavbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="adminNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-                <li class="nav-item">
-                    <a class="nav-link active" href="/admin/dashboard">Dashboard</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/users">Users</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/movies">Movies</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/reports">Reports</a>
-                </li>
-				
-				<li class="nav-item">
-				    <a class="nav-link" href="/admin/profile">
-				        Profile
-				    </a>
-				</li>
-            </ul>
-
-            <form th:action="@{/logout}" method="post">
-                <button class="btn btn-outline-light btn-sm">Logout</button>
-            </form>
-        </div>
-    </div>
-</nav>
+<div th:replace="partial/navbar :: adminNavbar"></div>
 
 <!-- 🔹 MAIN CONTENT -->
 <div class="container mt-4">

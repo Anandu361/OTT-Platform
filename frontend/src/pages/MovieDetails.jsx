@@ -1,4 +1,3 @@
-import React, { use } from 'react'
 import Navbar from '../components/Navbar'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -25,7 +24,7 @@ function MovieDetails() {
       }
 
       axios.post(
-        `http://localhost:8080/api/watchlist/add?movieId=${movie.movie_id}`,
+        `http://localhost:8080/api/watchlist/add?movieId=${movie.movieId}`,
         {},
         {
           headers: {
@@ -48,7 +47,7 @@ function MovieDetails() {
       }
 
       axios.get(
-        `http://localhost:8080/api/watch/now?movieId=${movie.movie_id}`,
+        `http://localhost:8080/api/watch/now?movieId=${movie.movieId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -57,7 +56,7 @@ function MovieDetails() {
       )
       .then(() => {
         // navigate to video page
-        navigate(`/watch/${movie.movie_id}`);
+        navigate(`/watch/${movie.movieId}`);
       })
       .catch(err => {
         alert(err.response?.data || "Unable to play movie");

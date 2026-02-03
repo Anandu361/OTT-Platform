@@ -3,12 +3,14 @@ package com.example.backend.configurations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.backend.security.ApiAuthenticationFilter;
 import com.example.backend.service.CustomUserDetailsService;
@@ -59,62 +61,89 @@ public class SecurityConfig {
     
    
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @org.springframework.core.annotation.Order(1)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+
+        http
+            .securityMatcher("/api/**")
+
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/api/login",
+                    "/api/register",
+                    "/api/movies/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+            )
+
+            // ❌ NO formLogin
+            // ❌ NO logout
+
+            .addFilterBefore(
+                apiAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            )
+
+            // ⛔ Never redirect APIs to login page
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((req, res, e) -> {
+                    res.setStatus(401);
+                    res.setContentType("application/json");
+                    res.getWriter().write("{\"error\":\"Unauthorized\"}");
+                })
+            );
+
+        return http.build();
+    }
+    
+    @Bean
+    @org.springframework.core.annotation.Order(2)
+    public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) throws Exception {
 
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
 
-            // ---------- AUTHORIZATION ----------
             .authorizeHttpRequests(auth -> auth
 
-                // preflight
-                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // admin auth pages
-                .requestMatchers("/admin/login").permitAll()
-                .requestMatchers("/favicon.ico").permitAll()
+                // admin auth
+                .requestMatchers(
+                    "/admin/login",
+                    "/admin/login-process",
+                    "/admin/logout",
+                    "/favicon.ico",
+                    "/posters/**",
+                    "/videos/**"
+                ).permitAll()
 
                 // admin area
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                // public API endpoints
-                .requestMatchers(
-                    "/api/login",
-                    "/api/register",
-                    "/api/movies/**",
-                    "/posters/**"
-                ).permitAll()
-
-                // everything else
                 .anyRequest().authenticated()
             )
 
-            // ---------- ADMIN FORM LOGIN ----------
             .formLogin(form -> form
-            	    .loginPage("/admin/login")
-            	    .loginProcessingUrl("/admin/login-process")
-            	    .usernameParameter("email")      // ✅ THIS LINE FIXES IT
-            	    .passwordParameter("password")
-            	    .defaultSuccessUrl("/admin/dashboard", true)
-            	    .failureUrl("/admin/login?error=true")
-            	    .permitAll()
-            	)
-
-            // ---------- LOGOUT ----------
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/admin/login?logout=true")
+                .loginPage("/admin/login")
+                .loginProcessingUrl("/admin/login-process")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/admin/dashboard", true)
+                .failureUrl("/admin/login?error=true")
             )
 
-            // ---------- JWT FILTER ----------
-            .addFilterBefore(
-                apiAuthenticationFilter,
-                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+            .logout(logout -> logout
+                .logoutUrl("/admin/logout")
+                .logoutSuccessUrl("/admin/login?logout=true")
             );
 
         return http.build();
     }
+
 
 
    
