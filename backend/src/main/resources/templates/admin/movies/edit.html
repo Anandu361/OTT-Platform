@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Movie</title>
+</head>
+<body>
+
+<h2>Add Movie</h2>
+
+<form th:action="@{/admin/movies/edit}"
+      method="post"
+      enctype="multipart/form-data">
+
+    <input type="hidden" name="movieId" th:value="${movie.movieId}">
+
+    <label>Movie Name</label><br>
+    <input type="text" name="movieName"
+           th:value="${movie.movieName}" required><br><br>
+
+    <label>Description</label><br>
+    <textarea name="description" required
+              th:text="${movie.description}"></textarea><br><br>
+
+    <label>Replace Poster (optional)</label><br>
+    <input type="file" name="posterFile" accept="image/*"><br><br>
+
+    <label>Replace Movie File (optional)</label><br>
+    <input type="file" name="videoFile" accept="video/*"><br><br>
+
+    <button type="submit">Update</button>
+</form>
+
+
+
+<br>
+<a href="/admin/movies">⬅ Back</a>
+
+</body>
+</html>

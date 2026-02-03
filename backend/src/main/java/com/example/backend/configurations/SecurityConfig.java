@@ -62,38 +62,60 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
 
-     
-        .formLogin(form -> form
-                .loginPage("/admin/login")
-                .loginProcessingUrl("/admin/login")
-                .defaultSuccessUrl("/admin/dashboard", true)
-                .failureUrl("/admin/login?error=true")
-                .permitAll()
-            )
+            // ---------- AUTHORIZATION ----------
             .authorizeHttpRequests(auth -> auth
-                // ✅ allow admin login page
+
+                // preflight
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+                // admin auth pages
                 .requestMatchers("/admin/login").permitAll()
                 .requestMatchers("/favicon.ico").permitAll()
-                // ✅ admin pages need ADMIN role
+
+                // admin area
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                // ✅ public APIs
-                .requestMatchers("/api/login", "/api/register", "/api/movies/**", "/posters/**").permitAll()
+                // public API endpoints
+                .requestMatchers(
+                    "/api/login",
+                    "/api/register",
+                    "/api/movies/**",
+                    "/posters/**"
+                ).permitAll()
 
-                // everything else needs auth
+                // everything else
                 .anyRequest().authenticated()
             )
 
-            // JWT filter (only affects /api/** now)
-            .addFilterBefore(apiAuthenticationFilter,
-                    org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+            // ---------- ADMIN FORM LOGIN ----------
+            .formLogin(form -> form
+            	    .loginPage("/admin/login")
+            	    .loginProcessingUrl("/admin/login-process")
+            	    .usernameParameter("email")      // ✅ THIS LINE FIXES IT
+            	    .passwordParameter("password")
+            	    .defaultSuccessUrl("/admin/dashboard", true)
+            	    .failureUrl("/admin/login?error=true")
+            	    .permitAll()
+            	)
+
+            // ---------- LOGOUT ----------
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/admin/login?logout=true")
+            )
+
+            // ---------- JWT FILTER ----------
+            .addFilterBefore(
+                apiAuthenticationFilter,
+                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
+
 
    
     @Autowired

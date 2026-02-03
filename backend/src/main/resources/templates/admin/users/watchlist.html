@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Watchlist</title>
+</head>
+<body>
+
+<h2>User Watchlist</h2>
+
+<p>
+    <strong>Name:</strong>
+    <span th:text="${user.fullname}"></span>
+</p>
+
+<p>
+    <strong>Email:</strong>
+    <span th:text="${user.email}"></span>
+</p>
+
+<hr>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>#</th>
+        <th>Movie</th>
+    </tr>
+
+    <tr th:each="w, stat : ${watchlist}">
+        <td th:text="${stat.count}"></td>
+        <td th:text="${w.movie != null ? w.movie.movieName : 'Movie deleted'}"></td>
+    </tr>
+
+    <tr th:if="${watchlist.isEmpty()}">
+        <td colspan="2">No movies in watchlist</td>
+    </tr>
+</table>
+
+<br>
+<a href="/admin/users">⬅ Back to Users</a>
+
+</body>
+</html>

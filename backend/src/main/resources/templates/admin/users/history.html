@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Watch History</title>
+</head>
+<body>
+
+<h2>User Watch History</h2>
+
+<p>
+    <strong>Name:</strong>
+    <span th:text="${user.fullname}"></span>
+</p>
+
+<p>
+    <strong>Email:</strong>
+    <span th:text="${user.email}"></span>
+</p>
+
+<hr>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>#</th>
+        <th>Movie</th>
+        <th>Watched At</th>
+    </tr>
+
+	<tr th:each="h, stat : ${history}">
+	    <td th:text="${stat.count}"></td>
+
+	    <td th:text="${h.movie != null
+	            ? h.movie.movieName
+	            : 'Movie deleted'}">
+	    </td>
+
+	    <td th:text="${h.watchedAt != null
+	            ? #temporals.format(h.watchedAt, 'dd MMM yyyy HH:mm')
+	            : 'N/A'}">
+	    </td>
+	</tr>
+</table>
+
+
+<br>
+<a href="/admin/users">⬅ Back to Users</a>
+
+</body>
+</html>

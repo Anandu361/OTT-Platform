@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Movies</title>
+</head>
+<body>
+
+<h2>Manage Movies</h2>
+
+<a href="/admin/movies/add">➕ Add Movie</a>
+<br><br>
+
+<table border="1" cellpadding="8">
+    <tr>
+		<th>Sl. No.</th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Views</th>
+        <th>Actions</th>
+    </tr>
+
+	<tr th:each="movie, stat : ${movies}">
+        <td th:text="${stat.index + 1}"></td>
+        <td th:text="${movie.movieId}"></td>
+        <td th:text="${movie.movieName}"></td>
+        <td th:text="${movie.views}"></td>
+        <td>
+            <a th:href="@{/admin/movies/edit/{id}(id=${movie.movieId})}">Edit</a> |
+            <a th:href="@{/admin/movies/delete/{id}(id=${movie.movieId})}"
+               onclick="return confirm('Delete this movie?')">Delete</a>
+        </td>
+    </tr>
+</table>
+
+<br>
+<a href="/admin/dashboard">⬅ Back to Dashboard</a>
+
+</body>
+</html>

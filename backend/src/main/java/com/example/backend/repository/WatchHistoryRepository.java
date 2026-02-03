@@ -17,4 +17,6 @@ public interface WatchHistoryRepository extends JpaRepository<WatchHistoryModel,
 
     // 🔹 Get latest 10 watched movies
     List<WatchHistoryModel> findTop10ByUserOrderByWatchedAtDesc(UserModel user);
+    void deleteByMovie(MovieModel movie);
+
 }

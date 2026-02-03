@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.backend.models.WatchlistModel;
+import com.example.backend.models.MovieModel;
 import com.example.backend.models.UserModel;
 
 public interface WatchlistRepository extends JpaRepository<WatchlistModel, Long> {
@@ -14,4 +15,6 @@ public interface WatchlistRepository extends JpaRepository<WatchlistModel, Long>
 
     // Check if movie already in watchlist
     boolean existsByUserAndMovie(UserModel user, com.example.backend.models.MovieModel movie);
+    void deleteByMovie(MovieModel movie);
+
 }

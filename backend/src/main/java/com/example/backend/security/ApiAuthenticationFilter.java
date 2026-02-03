@@ -1,6 +1,7 @@
 package com.example.backend.security;
 
 import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +26,6 @@ public class ApiAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserRepository userRepository;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -33,63 +33,63 @@ public class ApiAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String uri = request.getRequestURI();
-        
+
+        // ✅ Only handle API requests
         if (!uri.startsWith("/api/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (uri.startsWith("/admin")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-
-        // ✅ Public endpoints
-        if (uri.startsWith("/api/movies") || uri.startsWith("/posters")
-            || uri.equals("/api/login") || uri.equals("/api/register")) {
+        // ✅ Public API endpoints (no auth required)
+        if (uri.startsWith("/api/movies")
+                || uri.startsWith("/posters")
+                || uri.equals("/api/login")
+                || uri.equals("/api/register")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-
-            if (!tokenGenerator.validateToken(token)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid or expired token");
-                return;
-            }
-
-            UserModel user = userRepository.findByToken(token);
-
-            if (user == null) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("User not found for token");
-                return;
-            }
-
-            // ✅ BLOCKED USER CHECK (correct place)
-            if (user.isBlocked()) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("User blocked by admin");
-                return;
-            }
-
-            CustomUserDetail userDetails = new CustomUserDetail(user);
-
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Token required");
             return;
         }
+
+        String token = authHeader.substring(7);
+
+        if (!tokenGenerator.validateToken(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid or expired token");
+            return;
+        }
+
+        UserModel user = userRepository.findByToken(token);
+
+        if (user == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("User not found for token");
+            return;
+        }
+
+        // ✅ Blocked user check (unchanged)
+        if (user.isBlocked()) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("User blocked by admin");
+            return;
+        }
+
+        CustomUserDetail userDetails = new CustomUserDetail(user);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }

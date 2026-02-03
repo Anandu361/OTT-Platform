@@ -43,17 +43,19 @@ public class WatchController {
             return null;
         }
 
-        // 3. Save / update watch history (NO DUPLICATES)
+        // ✅ 3. INCREMENT VIEW COUNT (THIS WAS MISSING)
+        movie.setViews(movie.getViews() + 1);
+        movieRepository.save(movie);
+
+        // 4. Save / update watch history (NO DUPLICATES)
         Optional<WatchHistoryModel> existing =
                 watchHistoryRepository.findByUserAndMovie(user, movie);
 
         if (existing.isPresent()) {
-            // already watched before → update time
             WatchHistoryModel h = existing.get();
             h.setWatchedAt(LocalDateTime.now());
             watchHistoryRepository.save(h);
         } else {
-            // first time watching
             WatchHistoryModel history = new WatchHistoryModel();
             history.setUser(user);
             history.setMovie(movie);
@@ -61,9 +63,10 @@ public class WatchController {
             watchHistoryRepository.save(history);
         }
 
-        // 4. Return movie to frontend
+        // 5. Return movie to frontend
         return movie;
     }
+
 
     // 🕒 GET WATCH HISTORY (latest first)
     @GetMapping("/history")
