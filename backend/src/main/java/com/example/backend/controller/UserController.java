@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.HttpStatus;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,13 +44,35 @@ public class UserController {
     }
     
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserModel user) {
-        String token = tokenGenerator.generateToken(user.getEmail(), user.getPassword());
+    public ResponseEntity<?> login(@RequestBody UserModel requestUser) {
+
+        // 1️⃣ Find user by email
+        UserModel user = userRepository.findByEmail(requestUser.getEmail());
+
+        if (user == null) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
+
+        // 2️⃣ 🚫 BLOCKED USER CHECK (NEW)
+        if (user.isBlocked()) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("Your account has been blocked by admin");
+        }
+
+        // 3️⃣ Generate token using existing logic
+        String token = tokenGenerator.generateToken(
+                requestUser.getEmail(),
+                requestUser.getPassword()
+        );
+
         if (token != null) {
             return ResponseEntity.ok(Map.of("token", token));
         }
+
         return ResponseEntity.status(401).body("Invalid credentials");
     }
+
     
     @PostMapping("/update-password")
     public String updatePassword(@RequestBody PasswordRequest request) {

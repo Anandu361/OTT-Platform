@@ -12,7 +12,7 @@ function Navbar() {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }
     })
-    .then(res => setMovies(res.data))
+    .then(res => setMovies(res.data.content))
     .catch(err => console.error(err));
   }, []);
 
@@ -21,7 +21,7 @@ function Navbar() {
       ? []
       : movies
           .filter(m =>
-            m.movieName.toLowerCase().includes(query.toLowerCase())
+            m.movieName.toLowerCase().startsWith(query.toLowerCase())
           )
           .slice(0, 5);
 

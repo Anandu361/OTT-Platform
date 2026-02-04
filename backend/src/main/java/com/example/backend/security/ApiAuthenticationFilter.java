@@ -34,31 +34,33 @@ public class ApiAuthenticationFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
 
-        // ✅ Only handle API requests
+        // ✅ Only process /api/** routes
         if (!uri.startsWith("/api/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ✅ Public API endpoints (no auth required)
-        if (uri.startsWith("/api/movies")
-                || uri.startsWith("/posters")
-                || uri.equals("/api/login")
-                || uri.equals("/api/register")) {
+        // ✅ Public auth endpoints (no token required)
+        if (uri.equals("/api/login") || uri.equals("/api/register")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
 
+        /*
+         * ⭐ VERY IMPORTANT FIX
+         * If no token is sent → allow request to continue.
+         * This keeps public endpoints like /api/movies accessible.
+         */
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Token required");
+            filterChain.doFilter(request, response);
             return;
         }
 
         String token = authHeader.substring(7);
 
+        // ✅ Validate token
         if (!tokenGenerator.validateToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid or expired token");
@@ -73,13 +75,14 @@ public class ApiAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // ✅ Blocked user check (unchanged)
+        // ✅ Blocked users are denied access
         if (user.isBlocked()) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("User blocked by admin");
             return;
         }
 
+        // ✅ Set authentication for valid users
         CustomUserDetail userDetails = new CustomUserDetail(user);
 
         UsernamePasswordAuthenticationToken authentication =

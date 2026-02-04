@@ -17,7 +17,7 @@ public class MovieModel {
     @Column(name = "movie_name", nullable = false)
     private String movieName;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
     @Column(nullable = false)

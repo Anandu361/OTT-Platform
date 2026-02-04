@@ -7,26 +7,26 @@
 <body class="bg-light d-flex align-items-center" style="min-height:100vh;">
 
     <div class="container">
-        <div class="card justify-content-center mx-auto d-block shadow" style="max-width: 400px;">
-            <div class="card-body">
+        <div class="w-50 mx-auto mt-5 border p-4 rounded-3 shadow" style="max-width: 400px;">
                 <h2 class="text-center mb-4">Admin Login</h2>
 
-                <div class="mx-auto">
                     <form th:action="@{/admin/login-process}" method="post">
 
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="text" name="email" class="form-control" required>
+                            <label class="form-label" for="email">Email</label>
+                            <input type="text" name="email" id="email" class="form-control" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <label class="form-label" for="pwd">Password</label>
+                            <input type="password" name="password" id="pwd" class="form-control" required>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">
-                            Login
-                        </button>
+                        <div class="w-25  mx-auto">
+							<button type="submit" class="btn btn-primary w-100">
+	                            Login
+	                        </button>
+						</div>
                     </form>
 
                     <p th:if="${param.error}" class="text-danger text-center mt-3">
@@ -36,8 +36,6 @@
                     <p th:if="${param.logout}" class="text-success text-center mt-3">
                         Logged out successfully
                     </p>
-                </div>
-            </div>
         </div>
     </div>
 

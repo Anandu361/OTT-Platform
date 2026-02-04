@@ -2,38 +2,146 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Add Movie</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+		<style>
+		.upload-card{
+		    border:2px dashed #0d6efd;
+		    background:#f8f9fa;
+		    cursor:pointer;
+		    transition:0.25s;
+		}
+
+		.upload-card:hover{
+		    background:#eef5ff;
+		    transform:scale(1.01);
+		}
+
+		.upload-card.drag-active{
+		    background:#e7f1ff;
+		    border-color:#084298;
+		}
+		</style>
 </head>
 <body>
 
-<h2>Add Movie</h2>
+<div class="container mt-4">
+	<div class="card mx-auto shadow p-4" style="max-width: 600px;">
+		<div class="card-body">
+	<h2 class="text-center">Edit Movie</h2>
 
-<form th:action="@{/admin/movies/edit}"
-      method="post"
-      enctype="multipart/form-data">
+	<form th:action="@{/admin/movies/edit}"
+	      method="post"
+	      enctype="multipart/form-data">
 
-    <input type="hidden" name="movieId" th:value="${movie.movieId}">
+	    <input type="hidden" name="movieId" th:value="${movie.movieId}">
+		
+		<div class="mb-3">
+		    <label class="form-label" for="moviename">Movie Name</label>
+		    <input type="text" name="movieName"
+		           th:value="${movie.movieName}" class="form-control" id="moviename" required>
+		</div>
+		
+		<div class="mb-3">
+		    <label for="description" class="form-label">Description</label>
+		    <textarea name="description" required
+		              th:text="${movie.description}" class="form-control" id="description"></textarea>
+		</div>
+		
+		<div class="mb-4">
+	        <label class="form-label">Replace Poster Image</label>
 
-    <label>Movie Name</label><br>
-    <input type="text" name="movieName"
-           th:value="${movie.movieName}" required><br><br>
+	        <div class="upload-card text-center p-5 rounded"
+	             onclick="document.getElementById('posterInput').click()"
+	             ondragover="dragOver(event,this)"
+	             ondragleave="dragLeave(this)"
+	             ondrop="dropFile(event,'posterInput','posterPreview')">
 
-    <label>Description</label><br>
-    <textarea name="description" required
-              th:text="${movie.description}"></textarea><br><br>
+	            <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+	            <p class="mb-1 fw-semibold">Browse Files to Upload</p>
+	            <small class="text-muted">Drag & drop or click</small>
 
-    <label>Replace Poster (optional)</label><br>
-    <input type="file" name="posterFile" accept="image/*"><br><br>
+	            <input type="file"
+	                   id="posterInput"
+	                   name="posterFile"
+	                   accept="image/*"
+	                   hidden
+	                   onchange="previewFile(event,'posterPreview')">
 
-    <label>Replace Movie File (optional)</label><br>
-    <input type="file" name="videoFile" accept="video/*"><br><br>
+	            <img id="posterPreview"
+	                 class="img-fluid mt-3 d-none rounded"/>
+	        </div>
+	    </div>
+		
+		
+		<div class="mb-4">
+	        <label class="form-label">Movie File</label>
 
-    <button type="submit">Update</button>
-</form>
+	        <div class="upload-card text-center p-5 rounded"
+	             onclick="document.getElementById('videoInput').click()"
+	             ondragover="dragOver(event,this)"
+	             ondragleave="dragLeave(this)"
+	             ondrop="dropFile(event,'videoInput','videoPreview')">
 
+	            <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+	            <p class="mb-1 fw-semibold">Upload Movie Video</p>
+	            <small class="text-muted">Drag & drop or click</small>
 
+	            <input type="file"
+	                   id="videoInput"
+	                   name="videoFile"
+	                   accept="video/*"
+	                   hidden
+	                   onchange="previewFile(event,'videoPreview')">
 
-<br>
-<a href="/admin/movies">⬅ Back</a>
+	            <video id="videoPreview"
+	                   class="w-100 mt-3 d-none rounded"
+	                   controls></video>
+	        </div>
+	    </div>
 
+	    <div>
+			<button type="submit" class="btn btn-primary">Update</button>
+			<a href="/admin/movies" class="btn btn-primary">Back</a>
+		</div>
+	</form>
+
+		</div>
+	</div>
+	<br>
+	
+	
+</div>
+
+<script>
+function previewFile(event, previewId){
+    const file = event.target.files[0];
+    const preview = document.getElementById(previewId);
+
+    if(!file) return;
+
+    preview.src = URL.createObjectURL(file);
+    preview.classList.remove("d-none");
+}
+
+function dragOver(e,el){
+    e.preventDefault();
+    el.classList.add("drag-active");
+}
+
+function dragLeave(el){
+    el.classList.remove("drag-active");
+}
+
+function dropFile(e,inputId,previewId){
+    e.preventDefault();
+
+    const input = document.getElementById(inputId);
+    input.files = e.dataTransfer.files;
+
+    previewFile({target:input},previewId);
+    e.currentTarget.classList.remove("drag-active");
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
